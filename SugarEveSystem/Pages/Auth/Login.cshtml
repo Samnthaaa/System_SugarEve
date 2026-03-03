@@ -1,0 +1,57 @@
+@page
+@model SugarEveSystem.Pages.Auth.LoginModel
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+    Layout = null; // No sidebar
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Iniciar Sesión - Sugar Eve</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <style>
+        body {
+            background-color: var(--light-bg);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(255, 192, 203, 0.4);
+            border: 2px solid var(--primary-pink);
+            max-width: 400px;
+            width: 100%;
+            background-color: white;
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card text-center">
+        <img src="~/images/Logo_SugarEve.jpg" alt="Sugar Eve Logo" class="img-fluid rounded-circle mb-4 shadow-sm" style="max-width: 150px;" />
+        
+        <h3 class="text-primary fw-bold mb-4">¡Bienvenida!</h3>
+        
+        <form method="post">
+            <div class="input-group mb-3">
+                <span class="input-group-text bg-light text-primary border-end-0"><i class="fas fa-envelope"></i></span>
+                <input type="email" class="form-control border-start-0 ps-0" placeholder="Correo Electrónico" required />
+            </div>
+            
+            <div class="input-group mb-4">
+                <span class="input-group-text bg-light text-primary border-end-0"><i class="fas fa-lock"></i></span>
+                <input type="password" class="form-control border-start-0 ps-0" placeholder="Contraseña" required />
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3 rounded-pill fw-bold">Ingresar</button>
+            <a href="#" class="text-decoration-none text-muted small">¿Olvidaste tu contraseña?</a>
+        </form>
+    </div>
+</body>
+</html>

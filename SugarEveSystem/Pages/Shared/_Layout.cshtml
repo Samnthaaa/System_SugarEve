@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Sugar Eve</title>
+    <!-- Use Inter font for modern elegance -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/SugarEveSystem.styles.css" asp-append-version="true" />
+</head>
+<body>
+    
+    <!-- Top Navbar Fixed -->
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container-fluid px-4">
+            <!-- Logo always visible top left -->
+            <a class="navbar-brand d-flex align-items-center" asp-page="/Index">
+                <img src="~/images/Logo_SugarEve.jpg" alt="Sugar Eve Logo" height="40" class="me-3 rounded-circle" />
+                <span class="fw-bold fs-5 text-dark" style="letter-spacing: 0.5px;">Sugar Eve</span>
+            </a>
+            
+            <button class="btn btn-outline-secondary border-0 d-md-none" id="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="ms-auto d-none d-md-flex align-items-center">
+                <span class="text-muted small me-3"><i class="far fa-bell"></i></span>
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="dropdownUser" data-bs-toggle="dropdown" aria-expanded="false">
+                        <img src="~/images/Alternativo Sugar Eve.jpeg" alt="Admin" width="32" height="32" class="rounded-circle me-2 object-fit-cover">
+                        <span class="text-dark fw-medium small">Administrador</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="dropdownUser">
+                        <li><a class="dropdown-item py-2" href="#"><i class="fas fa-cog me-2 text-muted"></i> Configuración</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item py-2 text-danger" asp-page="/Auth/Login"><i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="d-flex" id="wrapper">
+        <!-- Sidebar Modernized -->
+        <div id="sidebar-wrapper">
+            <div class="list-group list-group-flush mt-4">
+                <p class="text-uppercase text-muted small fw-bold px-4 mb-2" style="letter-spacing: 1px; font-size: 0.75rem;">Principal</p>
+                <a asp-page="/Index" class="list-group-item list-group-item-action"><i class="fas fa-border-all me-3"></i> Dashboard</a>
+                <a asp-page="/Inventario/Index" class="list-group-item list-group-item-action"><i class="fas fa-box-open me-3"></i> Inventario de Carga</a>
+                
+                <p class="text-uppercase text-muted small fw-bold px-4 mb-2 mt-4" style="letter-spacing: 1px; font-size: 0.75rem;">Operaciones</p>
+                <a asp-page="/Checklists/Index" class="list-group-item list-group-item-action"><i class="fas fa-clipboard-check me-3"></i> Listas de Servicio</a>
+                <a asp-page="/Cotizaciones/Index" class="list-group-item list-group-item-action"><i class="fas fa-file-invoice me-3"></i> Cotizaciones CRM</a>
+            </div>
+        </div>
+        
+        <!-- Page Content -->
+        <div id="page-content-wrapper">
+            <div class="container-fluid p-4 p-md-5">
+                <main role="main" class="pb-3">
+                    @RenderBody()
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $("#menu-toggle").click(function(e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
+        
+        // Active state handling for sidebar
+        $(document).ready(function() {
+            var path = window.location.pathname;
+            $('.list-group-item').each(function() {
+                if ($(this).attr('href') === path || 
+                    (path !== '/' && $(this).attr('href') !== '/' && path.indexOf($(this).attr('href')) !== -1)) {
+                    $(this).addClass('bg-primary text-primary fw-bold');
+                }
+            });
+        });
+    </script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

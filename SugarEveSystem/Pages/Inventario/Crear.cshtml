@@ -1,0 +1,72 @@
+@page
+@model SugarEveSystem.Pages.Inventario.CrearModel
+@{
+    ViewData["Title"] = "Nuevo Artículo";
+}
+
+<div class="row align-items-center mb-4">
+    <div class="col-md-6">
+        <h2 class="text-primary fw-bold"><i class="fas fa-plus-circle me-2"></i> Nuevo Artículo</h2>
+    </div>
+    <div class="col-md-6 text-end">
+        <a asp-page="Index" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-2"></i> Volver al Inventario</a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm w-75 mx-auto">
+    <div class="card-header bg-primary text-dark fw-bold">
+        Completar Datos del Nuevo Artículo
+    </div>
+    <div class="card-body bg-white rounded-bottom">
+        
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="alert alert-danger">@Model.ErrorMessage</div>
+        }
+
+        <form method="post">
+            <div class="mb-3">
+                <label asp-for="Item.Codigo" class="form-label text-primary fw-bold">Código Único/Barras</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-primary"><i class="fas fa-barcode"></i></span>
+                    <input asp-for="Item.Codigo" class="form-control" required placeholder="Ej. B-001 o Código de Barras" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Item.Descripcion" class="form-label text-primary fw-bold">Descripción General</label>
+                <input asp-for="Item.Descripcion" class="form-control" required placeholder="Ej. Base Cilíndrica Blanca, Globo Metálico Corazón..." />
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Item.TipoMaterial" class="form-label text-primary fw-bold">Tipo de Material</label>
+                    <select asp-for="Item.TipoMaterial" class="form-select" required>
+                        <option value="">Seleccione el tipo...</option>
+                        <option value="Base">Base / Estructura</option>
+                        <option value="Globo">Globo / Decoración</option>
+                        <option value="Snack">Insumo de Snack</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Item.CantidadDisponible" class="form-label text-primary fw-bold">Cantidad Disponible</label>
+                    <input asp-for="Item.CantidadDisponible" class="form-control" type="number" min="0" required />
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Item.FotografiaUrl" class="form-label text-primary fw-bold">URL de Fotografía</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light text-primary"><i class="fas fa-image"></i></span>
+                    <input asp-for="Item.FotografiaUrl" class="form-control" placeholder="https://ejemplo.com/foto.jpg" />
+                </div>
+                <small class="text-muted">Si ingresa una URL válida, se mostrará en la lista.</small>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-lg w-50">Guardar Artículo <i class="fas fa-save ms-2"></i></button>
+            </div>
+        </form>
+    </div>
+</div>
