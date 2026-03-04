@@ -1,0 +1,72 @@
+@* Vista parcial reutilizable para mostrar un checklist completo con secciones *@
+@model SugarEveSystem.Models.ServicioChecklist
+
+@{
+    var totalItems = Model.Secciones?.Sum(s => s.Items?.Count ?? 0) ?? Model.Materiales?.Count ?? 0;
+    var completados = Model.Secciones?.Sum(s => s.Items?.Count(i => i.Completado) ?? 0) ?? Model.Materiales?.Count(m => m.Completado) ?? 0;
+    var porcentaje = totalItems > 0 ? (int)((double)completados / totalItems * 100) : 0;
+}
+
+<div class="card border-0 shadow-sm h-100 checklist-card">
+    <div class="card-header border-0 d-flex justify-content-between align-items-center"
+         style="background: linear-gradient(135deg, var(--sugar-primary), #f48fb1); border-radius: 12px 12px 0 0 !important;">
+        <span class="fw-bold text-dark text-truncate" title="@Model.TituloServicio">@Model.TituloServicio</span>
+        @if (Model.ConfirmacionFinal)
+        {
+            <span class="badge bg-success">Finalizado ✓</span>
+        }
+        else
+        {
+            <span class="badge text-dark" style="background-color: #fff3;"
+                  title="Estado actual">@Model.Estado</span>
+        }
+    </div>
+    <div class="card-body bg-white">
+        <p class="mb-1 small text-truncate"><i class="fas fa-calendar-alt me-1 text-muted"></i> <strong>Evento:</strong> @Model.EventoAsociado</p>
+        <p class="mb-3 small"><i class="fas fa-user me-1 text-muted"></i> <strong>Responsable:</strong> @Model.Responsable</p>
+
+        <div class="d-flex justify-content-between small text-muted mb-1">
+            <span>Progreso general</span>
+            <span>@completados / @totalItems (@porcentaje%)</span>
+        </div>
+        <div class="progress mb-3" style="height: 8px; border-radius: 99px;">
+            <div class="progress-bar @(porcentaje == 100 ? "bg-success" : "")"
+                 style="width: @porcentaje%; @(porcentaje < 100 ? "background: linear-gradient(90deg, #f48fb1, #e91e8c);" : "")"
+                 role="progressbar" aria-valuenow="@porcentaje" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+
+        @if (Model.Secciones != null && Model.Secciones.Any())
+        {
+            @foreach (var seccion in Model.Secciones.Take(2))
+            {
+                <div class="mb-2">
+                    <p class="small fw-bold text-muted mb-1" style="letter-spacing: .5px; text-transform: uppercase; font-size: .7rem;">
+                        @seccion.NombreSeccion
+                    </p>
+                    <ul class="list-unstyled mb-0">
+                        @foreach (var item in (seccion.Items ?? new()).Take(3))
+                        {
+                            <li class="small text-truncate mb-1">
+                                @if (item.Completado)
+                                {
+                                    <i class="fas fa-check-circle text-success me-1"></i>
+                                }
+                                else
+                                {
+                                    <i class="far fa-circle me-1" style="color: #f48fb1;"></i>
+                                }
+                                @item.Descripcion
+                            </li>
+                        }
+                    </ul>
+                </div>
+            }
+        }
+    </div>
+    <div class="card-footer border-0 bg-white pb-3 rounded-bottom">
+        <a href="#" class="btn btn-sm w-100 fw-bold"
+           style="background: linear-gradient(90deg, #f48fb1, #e91e8c); color: white; border: none; border-radius: 8px;">
+            <i class="fas fa-clipboard-check me-1"></i> Ver Checklist Completo
+        </a>
+    </div>
+</div>

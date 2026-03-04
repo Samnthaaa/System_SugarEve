@@ -2,96 +2,190 @@
 @model SugarEveSystem.Pages.Cotizaciones.IndexModel
 @{
     ViewData["Title"] = "Cotizaciones";
+    var servicios = new[] { "Backdrops","Miniferia","BarraSnacks","MesaDulces","Algodones","Palomitas","Churros","CatalogoPaneles" };
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="text-primary fw-bold"><i class="fas fa-file-invoice-dollar me-2"></i> Gestión de Cotizaciones</h2>
-    <a asp-page="Crear" class="btn btn-primary"><i class="fas fa-plus me-2"></i> Nueva Cotización</a>
+
+@* ===== ENCABEZADO ===== *@
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <h2 class="fw-bold mb-0" style="color: var(--sugar-dark);">
+            <i class="fas fa-file-invoice-dollar me-2" style="color: var(--sugar-primary);"></i>
+            Cotizaciones
+        </h2>
+        <p class="text-muted small mb-0">
+            @Model.CotizacionesFiltradas.Count de @Model.Cotizaciones.Count cotizaciones mostradas
+        </p>
+    </div>
+    <a asp-page="Crear" class="btn fw-bold"
+       style="background: linear-gradient(90deg, #f48fb1, #e91e8c); color: white; border: none; border-radius: 10px;">
+        <i class="fas fa-plus me-2"></i>Nueva Cotización
+    </a>
 </div>
 
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body bg-white rounded">
-        @if (Model.Cotizaciones == null)
-        {
-            <div class="text-center py-5">
-                <i class="fas fa-spinner fa-spin text-primary fa-2x mb-3"></i>
-                <p class="text-muted">Cargando datos. Asegúrese de que Firebase está configurado.</p>
+@* ===== BUSCADOR Y FILTROS ===== *@
+<div class="card border-0 shadow-sm mb-4" style="border-radius: 14px;">
+    <div class="card-body bg-white p-4" style="border-radius: 14px;">
+        <form method="get" id="formBusqueda">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label class="form-label small fw-bold text-muted">
+                        <i class="fas fa-search me-1"></i> Buscar
+                    </label>
+                    <input type="text" name="Busqueda" value="@Model.Busqueda"
+                           class="form-control" placeholder="Nombre, evento, detalles..."
+                           style="border-radius: 10px; border-color: #f8bbd0;"
+                           oninput="document.getElementById('formBusqueda').submit()">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold text-muted">
+                        <i class="fas fa-concierge-bell me-1"></i> Servicio
+                    </label>
+                    <select name="FiltroServicio" class="form-select" style="border-radius:10px; border-color:#f8bbd0;"
+                            onchange="this.form.submit()">
+                        <option value="">Todos los servicios</option>
+                        @foreach (var s in servicios)
+                        {
+                            <option value="@s" selected="@(Model.FiltroServicio == s ? "selected" : null)">
+                                @s.Replace("Catalogo", "Catálogo de ")
+                            </option>
+                        }
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted">
+                        <i class="fas fa-filter me-1"></i> Estado
+                    </label>
+                    <select name="FiltroEstado" class="form-select" style="border-radius:10px; border-color:#f8bbd0;"
+                            onchange="this.form.submit()">
+                        <option value="">Todos</option>
+                        <option value="Confirmado" selected="@(Model.FiltroEstado == "Confirmado" ? "selected" : null)">Confirmado</option>
+                        <option value="Pendiente" selected="@(Model.FiltroEstado == "Pendiente" ? "selected" : null)">Pendiente</option>
+                        <option value="Cancelado" selected="@(Model.FiltroEstado == "Cancelado" ? "selected" : null)">Cancelado</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label small fw-bold text-muted">
+                        <i class="fas fa-calendar me-1"></i> Fecha
+                    </label>
+                    <input type="date" name="FiltroFecha" value="@Model.FiltroFecha"
+                           class="form-control" style="border-radius:10px; border-color:#f8bbd0;"
+                           onchange="this.form.submit()">
+                </div>
+                <div class="col-md-1">
+                    <a asp-page="Index" class="btn btn-outline-secondary w-100" style="border-radius:10px;" title="Limpiar filtros">
+                        <i class="fas fa-times"></i>
+                    </a>
+                </div>
             </div>
-            
-            <!-- Vista previa estática cuando no hay Firebase -->
-            <table class="table table-hover align-middle">
-                <thead class="table-light text-primary">
-                    <tr>
-                        <th>Cliente</th>
-                        <th>Evento</th>
-                        <th>Fecha</th>
-                        <th>Monto</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>María López</td>
-                        <td>Boda civil</td>
-                        <td>2026-03-15</td>
-                        <td>$4,500 MXN</td>
-                        <td><span class="badge bg-warning text-dark">Pendiente</span></td>
-                        <td><button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button></td>
-                    </tr>
-                </tbody>
-            </table>
-        }
-        else if (Model.Cotizaciones.Count == 0)
+        </form>
+    </div>
+</div>
+
+@* ===== TABLA DE COTIZACIONES ===== *@
+<div class="card border-0 shadow-sm" style="border-radius: 14px; overflow: hidden;">
+    <div class="card-body bg-white p-0">
+        @if (!Model.CotizacionesFiltradas.Any())
         {
             <div class="text-center py-5">
-                <i class="fas fa-file-signature fa-4x text-muted mb-3"></i>
-                <h4 class="text-muted">No hay cotizaciones registradas</h4>
-                <p>Crea tu primera cotización para empezar a medir tus conversiones.</p>
+                <i class="fas fa-search fa-3x mb-3" style="color: #f8bbd0;"></i>
+                <h5 class="text-muted">Sin resultados</h5>
+                <p class="text-muted small">Ajusta los filtros o
+                    <a asp-page="Index" style="color: #e91e8c;">limpia la búsqueda</a>.
+                </p>
             </div>
         }
         else
         {
-            <table class="table table-hover align-middle">
-                <thead class="table-light text-primary">
-                    <tr>
-                        <th>Cliente</th>
-                        <th>Evento</th>
-                        <th>Fecha</th>
-                        <th>Monto</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var coti in Model.Cotizaciones)
-                    {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead style="background: linear-gradient(135deg, #fce4ec, #f8bbd0);">
                         <tr>
-                            <td class="fw-bold">@coti.NombreCliente</td>
-                            <td>@coti.TipoEvento</td>
-                            <td>@coti.FechaEvento</td>
-                            <td>$@coti.MontoCotizado.ToString("N2")</td>
-                            <td>
-                                @if(coti.Estado == "Confirmado")
-                                {
-                                    <span class="badge bg-success">@coti.Estado</span>
-                                }
-                                else if(coti.Estado == "Cancelado")
-                                {
-                                    <span class="badge bg-danger">@coti.Estado</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-warning text-dark">@coti.Estado</span>
-                                }
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-primary"><i class="fas fa-edit"></i></button>
-                            </td>
+                            <th class="px-4 py-3" style="color: var(--sugar-dark); font-size:.8rem; text-transform:uppercase; letter-spacing:.5px;">Cliente</th>
+                            <th style="color: var(--sugar-dark); font-size:.8rem; text-transform:uppercase; letter-spacing:.5px;">Evento</th>
+                            <th style="color: var(--sugar-dark); font-size:.8rem; text-transform:uppercase; letter-spacing:.5px;">Servicio</th>
+                            <th style="color: var(--sugar-dark); font-size:.8rem; text-transform:uppercase; letter-spacing:.5px;">Fecha</th>
+                            <th style="color: var(--sugar-dark); font-size:.8rem; text-transform:uppercase; letter-spacing:.5px;">Monto</th>
+                            <th style="color: var(--sugar-dark); font-size:.8rem; text-transform:uppercase; letter-spacing:.5px;">Estado</th>
+                            <th style="color: var(--sugar-dark); font-size:.8rem; text-transform:uppercase; letter-spacing:.5px;">Días</th>
+                            <th></th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var coti in Model.CotizacionesFiltradas)
+                        {
+                            var rowClass = coti.EsUrgente ? "table-danger" : coti.EsProximo ? "table-warning" : "";
+                            <tr class="@rowClass" style="transition: background .2s;">
+                                <td class="px-4 fw-bold" style="color: var(--sugar-dark);">
+                                    @if (coti.EsUrgente) { <i class="fas fa-exclamation-triangle text-danger me-1" title="¡Urgente!"></i> }
+                                    else if (coti.EsProximo) { <i class="fas fa-clock text-warning me-1" title="Próximo"></i> }
+                                    @coti.NombreCliente
+                                </td>
+                                <td class="small text-muted">@coti.TipoEvento</td>
+                                <td>
+                                    <span class="badge px-2 py-1" style="background: linear-gradient(90deg,#fce4ec,#f8bbd0); color: #ad1457; font-size:.75rem;">
+                                        @coti.TipoServicio
+                                    </span>
+                                </td>
+                                <td class="small">@coti.FechaEvento</td>
+                                <td class="fw-bold" style="color:#ad1457;">$@coti.MontoCotizado.ToString("N0")</td>
+                                <td>
+                                    @switch (coti.Estado)
+                                    {
+                                        case "Confirmado":
+                                            <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Confirmado</span>
+                                            break;
+                                        case "Cancelado":
+                                            <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Cancelado</span>
+                                            break;
+                                        default:
+                                            <span class="badge bg-warning text-dark"><i class="fas fa-hourglass-half me-1"></i>Pendiente</span>
+                                            break;
+                                    }
+                                </td>
+                                <td class="small text-center">
+                                    @if (coti.DiasRestantes.HasValue)
+                                    {
+                                        if (coti.DiasRestantes < 0)
+                                        {
+                                            <span class="text-muted">Pasado</span>
+                                        }
+                                        else if (coti.DiasRestantes == 0)
+                                        {
+                                            <strong style="color:#e91e8c;">¡Hoy!</strong>
+                                        }
+                                        else
+                                        {
+                                            <span class="@(coti.EsProximo ? "fw-bold" : "")">@coti.DiasRestantes d</span>
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm" style="border-radius:8px; border: 1px solid #f8bbd0; color:#ad1457;">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @* Pie con totales *@
+            <div class="px-4 py-3 d-flex gap-4 flex-wrap" style="background:#fafafa; border-top:1px solid #f8bbd0;">
+                <span class="small text-muted">
+                    <i class="fas fa-money-bill-wave me-1"></i> Total:
+                    <strong style="color:#ad1457;">
+                        $@Model.CotizacionesFiltradas.Sum(c => c.MontoCotizado).ToString("N0") MXN
+                    </strong>
+                </span>
+                <span class="small text-muted">
+                    <i class="fas fa-check-circle text-success me-1"></i> Confirmadas: <strong>@Model.CotizacionesFiltradas.Count(c => c.Estado == "Confirmado")</strong>
+                </span>
+                <span class="small text-muted">
+                    <i class="fas fa-hourglass-half text-warning me-1"></i> Pendientes: <strong>@Model.CotizacionesFiltradas.Count(c => c.Estado == "Pendiente")</strong>
+                </span>
+            </div>
         }
     </div>
 </div>

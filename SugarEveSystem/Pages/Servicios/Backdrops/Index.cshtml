@@ -1,0 +1,6 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Backdrops – Detalles";
+}
+@await Html.PartialAsync("_ServicioTablero", (Model.Servicios, Model.Cotizaciones, "Backdrops", "fas fa-camera-retro", "Fondos decorativos personalizados para cualquier tipo de evento.", "Backdrops"))

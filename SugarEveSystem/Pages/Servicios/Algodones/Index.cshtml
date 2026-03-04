@@ -1,0 +1,6 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Estación de Algodones – Detalles";
+}
+@await Html.PartialAsync("_ServicioTablero", (Model.Servicios, Model.Cotizaciones, "Estación de Algodones", "fas fa-cloud", "Carrito de algodones de azúcar frescos en el evento.", "Algodones"))

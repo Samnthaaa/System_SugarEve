@@ -8,7 +8,10 @@ namespace SugarEveSystem.Models
         public string Id { get; set; }
 
         [FirestoreProperty]
-        public string TituloServicio { get; set; } // Ej. "Barra de snacks"
+        public string TituloServicio { get; set; } // Ej. "Barra de Snacks"
+
+        [FirestoreProperty]
+        public string TipoServicio { get; set; } // "Backdrops", "Miniferia", "BarraSnacks", etc.
 
         [FirestoreProperty]
         public string EventoAsociado { get; set; } // Nombre del evento o cliente
@@ -23,7 +26,21 @@ namespace SugarEveSystem.Models
         public bool ConfirmacionFinal { get; set; }
 
         [FirestoreProperty]
+        public List<CheckItemSeccion> Secciones { get; set; }
+
+        // Compatibilidad legacy
+        [FirestoreProperty]
         public List<CheckItem> Materiales { get; set; }
+    }
+
+    [FirestoreData]
+    public class CheckItemSeccion
+    {
+        [FirestoreProperty]
+        public string NombreSeccion { get; set; } // Ej: "Materiales", "Logística", "Montaje"
+
+        [FirestoreProperty]
+        public List<CheckItem> Items { get; set; }
     }
 
     [FirestoreData]

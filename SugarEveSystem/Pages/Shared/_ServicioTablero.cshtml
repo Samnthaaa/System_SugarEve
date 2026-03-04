@@ -1,0 +1,188 @@
+@using SugarEveSystem.Models
+@model (List<ServicioChecklist> Servicios, List<Cotizacion> Cotizaciones, string Titulo, string Icono, string Descripcion, string TipoServicio)
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+    <div>
+        <a asp-page="/Checklists/Index" class="btn btn-sm btn-outline-secondary mb-2">
+            <i class="fas fa-arrow-left me-1"></i> Servicios
+        </a>
+        <h2 class="fw-bold mb-0" style="color: var(--sugar-dark);">
+            <i class="@Model.Icono me-2" style="color: var(--sugar-primary);"></i>@Model.Titulo
+        </h2>
+        <p class="text-muted small mb-0">@Model.Descripcion</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-page="/Cotizaciones/Crear" asp-route-tipo="@Model.TipoServicio" class="btn fw-bold"
+           style="background: white; color: #e91e8c; border: 1px solid #e91e8c; border-radius: 10px;">
+            <i class="fas fa-file-invoice-dollar me-1"></i>Nueva Cotización
+        </a>
+        <a asp-page="/Servicios/@Model.TipoServicio/Crear" class="btn fw-bold"
+           style="background: linear-gradient(90deg, #f48fb1, #e91e8c); color: white; border: none; border-radius: 10px;">
+            <i class="fas fa-clipboard-check me-1"></i>Nuevo Checklist
+        </a>
+    </div>
+</div>
+
+<ul class="nav nav-tabs mb-4 border-bottom-0 gap-2" id="servicioTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active fw-bold px-4 py-2" id="cotizaciones-tab" data-bs-toggle="tab" data-bs-target="#cotizaciones" type="button" role="tab" style="border-radius: 10px 10px 0 0; color: #e91e8c; background: #fff; border: 1px solid #f8bbd0; border-bottom: none;">
+            <i class="fas fa-file-invoice-dollar me-2"></i>Cotizaciones (@Model.Cotizaciones.Count)
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link fw-bold px-4 py-2" id="checklists-tab" data-bs-toggle="tab" data-bs-target="#checklists" type="button" role="tab" style="border-radius: 10px 10px 0 0; color: #7f8c8d; background: #fafafa; border: 1px solid transparent;">
+            <i class="fas fa-clipboard-check me-2"></i>Checklists (@Model.Servicios.Count)
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="servicioTabsContent">
+    <!-- Tab Cotizaciones -->
+    <div class="tab-pane fade show active" id="cotizaciones" role="tabpanel">
+        @if (!Model.Cotizaciones.Any())
+        {
+            <div class="text-center py-5 bg-white rounded-3 shadow-sm border" style="border-color: #f8bbd0 !important;">
+                <i class="fas fa-file-invoice-dollar fa-3x mb-3" style="color: #fce4ec;"></i>
+                <h5 class="text-muted">No hay cotizaciones de @Model.Titulo</h5>
+                <p class="text-muted small">Haz clic en "Nueva Cotización" para empezar.</p>
+            </div>
+        }
+        else
+        {
+            <div class="card border-0 shadow-sm" style="border-radius: 14px; overflow: hidden;">
+                <div class="table-responsive bg-white">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead style="background: linear-gradient(135deg, #fce4ec, #f8bbd0);">
+                            <tr>
+                                <th class="px-4 py-3" style="color: var(--sugar-dark); font-size:.8rem; text-transform:uppercase;">Cliente</th>
+                                <th style="color: var(--sugar-dark); font-size:.8rem; text-transform:uppercase;">Evento</th>
+                                <th style="color: var(--sugar-dark); font-size:.8rem; text-transform:uppercase;">Fecha</th>
+                                <th style="color: var(--sugar-dark); font-size:.8rem; text-transform:uppercase;">Monto</th>
+                                <th style="color: var(--sugar-dark); font-size:.8rem; text-transform:uppercase;">Estado</th>
+                                <th style="color: var(--sugar-dark); font-size:.8rem; text-transform:uppercase;">Próximo</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var coti in Model.Cotizaciones.OrderBy(c => c.FechaEvento))
+                            {
+                                var rowClass = coti.EsUrgente ? "table-danger" : coti.EsProximo ? "table-warning" : "";
+                                <tr class="@rowClass">
+                                    <td class="px-4 fw-bold" style="color: var(--sugar-dark);">@coti.NombreCliente</td>
+                                    <td class="small text-muted">@coti.TipoEvento</td>
+                                    <td class="small fw-medium">@coti.FechaEvento</td>
+                                    <td class="fw-bold" style="color:#ad1457;">$@coti.MontoCotizado.ToString("N0")</td>
+                                    <td>
+                                        @if (coti.Estado == "Confirmado") { <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Confirmado</span> }
+                                        else if (coti.Estado == "Cancelado") { <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i>Cancelado</span> }
+                                        else { <span class="badge bg-warning text-dark"><i class="fas fa-hourglass-half me-1"></i>Pendiente</span> }
+                                    </td>
+                                    <td class="small text-muted">
+                                        @if (coti.DiasRestantes.HasValue) {
+                                            if (coti.DiasRestantes == 0) { <strong class="text-danger">¡Hoy!</strong> }
+                                            else if (coti.DiasRestantes < 0) { <span>Pasado</span> }
+                                            else { <span>@(coti.DiasRestantes) d</span> }
+                                        }
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-sm" style="border-radius:8px; border: 1px solid #f8bbd0; color:#ad1457;"><i class="fas fa-edit"></i></button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Tab Checklists -->
+    <div class="tab-pane fade" id="checklists" role="tabpanel">
+        @if (!Model.Servicios.Any())
+        {
+            <div class="text-center py-5 bg-white rounded-3 shadow-sm border" style="border-color: #f8bbd0 !important;">
+                <i class="fas fa-clipboard-check fa-3x mb-3" style="color: #fce4ec;"></i>
+                <h5 class="text-muted">No hay checklists de @Model.Titulo</h5>
+                <p class="text-muted small">Haz clic en "Nuevo Checklist" para prepararlo.</p>
+            </div>
+        }
+        else
+        {
+            <div class="row g-4">
+                @foreach (var srv in Model.Servicios)
+                {
+                    var totalItems = srv.Secciones?.Sum(s => s.Items?.Count ?? 0) ?? srv.Materiales?.Count ?? 0;
+                    var completados = srv.Secciones?.Sum(s => s.Items?.Count(i => i.Completado) ?? 0) ?? srv.Materiales?.Count(m => m.Completado) ?? 0;
+                    var porcentaje = totalItems > 0 ? (int)((double)completados / totalItems * 100) : 0;
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card border-0 shadow-sm h-100" style="border-radius: 14px; overflow: hidden;">
+                            <div class="card-header border-0 d-flex justify-content-between align-items-center"
+                                 style="background: linear-gradient(135deg, var(--sugar-primary), #f48fb1);">
+                                <span class="fw-bold text-dark text-truncate">@srv.TituloServicio</span>
+                                @if (srv.ConfirmacionFinal) { <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Finalizado</span> }
+                                else { <span class="badge" style="background:#fff3; color:#333;">@srv.Estado</span> }
+                            </div>
+                            <div class="card-body bg-white">
+                                <p class="small mb-1"><i class="fas fa-calendar-alt me-1 text-muted"></i><strong>Evento:</strong> @srv.EventoAsociado</p>
+                                <p class="small mb-3"><i class="fas fa-user me-1 text-muted"></i><strong>Responsable:</strong> @srv.Responsable</p>
+                                <div class="d-flex justify-content-between small text-muted mb-1">
+                                    <span>Progreso</span><span>@completados/@totalItems (@porcentaje%)</span>
+                                </div>
+                                <div class="progress mb-3" style="height: 7px; border-radius: 99px;">
+                                    <div class="progress-bar" role="progressbar"
+                                         style="width: @porcentaje%; background: linear-gradient(90deg, #f48fb1, #e91e8c);"
+                                         aria-valuenow="@porcentaje" aria-valuemin="0" aria-valuemax="100"></div>
+                                </div>
+                                @if (srv.Secciones != null)
+                                {
+                                    foreach (var sec in srv.Secciones.Take(2))
+                                    {
+                                        <p class="small fw-bold text-uppercase text-muted mb-1" style="font-size:.68rem;">@sec.NombreSeccion</p>
+                                        <ul class="list-unstyled mb-2">
+                                            @foreach (var item in (sec.Items ?? new()).Take(3))
+                                            {
+                                                <li class="small text-truncate">
+                                                    @if (item.Completado) { <i class="fas fa-check-circle text-success me-1"></i> }
+                                                    else { <i class="far fa-circle me-1" style="color:#f48fb1;"></i> }
+                                                    @item.Descripcion
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
+                                }
+                            </div>
+                            <div class="card-footer border-0 bg-white pb-3">
+                                <a href="#" class="btn btn-sm w-100 fw-bold"
+                                   style="background: linear-gradient(90deg, #f48fb1, #e91e8c); color: white; border-radius: 8px;">
+                                    <i class="fas fa-clipboard-check me-1"></i>Ver / Editar Checklist
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const triggers = document.querySelectorAll('#servicioTabs button[data-bs-toggle="tab"]');
+        triggers.forEach(t => {
+            t.addEventListener('show.bs.tab', function(e) {
+                // Reset styles
+                triggers.forEach(btn => {
+                    btn.style.color = '#7f8c8d';
+                    btn.style.background = '#fafafa';
+                    btn.style.borderColor = 'transparent';
+                    btn.style.borderBottom = '1px solid #dee2e6';
+                });
+                // Set active styles
+                e.target.style.color = '#e91e8c';
+                e.target.style.background = '#fff';
+                e.target.style.borderColor = '#f8bbd0';
+                e.target.style.borderBottom = 'none';
+            });
+        });
+    });
+</script>

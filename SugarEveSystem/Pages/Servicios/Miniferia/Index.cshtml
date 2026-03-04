@@ -1,0 +1,6 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Miniferia – Detalles";
+}
+@await Html.PartialAsync("_ServicioTablero", (Model.Servicios, Model.Cotizaciones, "Miniferia", "fas fa-ticket-alt", "Servicio de mini feria para crear áreas de juego y diversión.", "Miniferia"))

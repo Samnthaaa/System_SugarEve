@@ -1,0 +1,6 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Catálogo de Paneles – Detalles";
+}
+@await Html.PartialAsync("_ServicioTablero", (Model.Servicios, Model.Cotizaciones, "Catálogo de Paneles", "fas fa-th-large", "Selección y montaje del catálogo exclusivo de paneles estelares.", "CatalogoPaneles"))
